@@ -1,2 +1,1 @@
-# faugjs-vscode-plugin
-faugjs plugin for vscode
+# faugjs plugin for vscode
