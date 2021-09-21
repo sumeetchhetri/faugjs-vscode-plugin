@@ -1,0 +1,367 @@
+{
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"type": "string"
+		},
+		"$id": {
+			"type": "string"
+		},
+		"dependencies": {
+			"type": "object",
+			"properties": {
+				"override": {
+					"type": ["boolean", "null"]
+				},
+				"list": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"settings": {
+			"type": "object",
+			"required": ["extensionFile"],
+			"properties": {
+				"debugEnabled": {
+					"type": ["string", "boolean", "null"]
+				},
+				"crudcreatename": {
+					"type": ["string", "null"]
+				},
+				"crudreadname": {
+					"type": ["string", "null"]
+				},
+				"crudupdatename": {
+					"type": ["string", "null"]
+				},
+				"cruddeletename": {
+					"type": ["string", "null"]
+				},
+				"crudreadallname": {
+					"type": ["string", "null"]
+				},
+				"dateformat": {
+					"type": ["string", "null"]
+				},
+				"datetimeformat": {
+					"type": ["string", "null"]
+				},
+				"timeformat": {
+					"type": ["string", "null"]
+				},
+				"timestampformat": {
+					"type": ["string", "null"]
+				},
+				"honourLocale": {
+					"type": ["string", "boolean", "null"]
+				},
+				"freezeLoaderId": {
+					"type": ["string", "null"]
+				},
+				"freezeLoaderHtml": {
+					"type": ["string", "null"]
+				},
+				"compressedSchemas": {
+					"type": ["string", "null"]
+				},
+				"compressedTemplatizedSchemas": {
+					"type": ["string", "null"]
+				},
+				"initialLodaerScreen": {
+					"type": ["string", "boolean", "null"]
+				},
+				"numApiWebWorkers": {
+					"type": ["number", "null"]
+				},
+				"schemaIntlEnabled": {
+					"type": ["boolean", "null"]
+				},
+				"defaultLanguage": {
+					"type": ["string", "null"]
+				},
+				"defCurrency": {
+					"type": ["string", "null"]
+				},
+				"lazyLoad": {
+					"type": ["string", "boolean", "null"]
+				},
+				"extensionFile": {
+					"type": "string"
+				},
+				"layerFile": {
+					"type": ["string", "null"]
+				},
+				"disableContextMenu": {
+					"type": ["string", "boolean", "null"]
+				},
+				"disableBackForwardButton": {
+					"type": ["string", "boolean", "null"]
+				},
+				"disableBackForwardButtonCompletely": {
+					"type": ["string", "boolean", "null"]
+				},
+				"enableRouteModules": {
+					"type": ["string", "boolean", "null"]
+				},
+				"compressedModuleFiles": {
+					"type": ["string", "boolean", "null"]
+				}
+			}
+		},
+		"globals": {
+			"type": "object"
+		},
+		"modules": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"schemas": {
+			"type": "object",
+			"additionalProperties": {
+				"type": "array",
+				"items": {
+					"type": "string"
+				}
+			}
+		},
+		"templates": {
+			"type": "array",
+			"items": {
+				"type": ["string", "array"]
+			}
+		},
+		"router": {
+			"type": "object",
+			"required": ["routes"],
+			"properties": {
+				"defaultroute": {
+					"type": ["string", "null"]
+				},
+				"aliases": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				},
+				"process": {
+					"type": ["boolean", "string", "null"]
+				},
+				"secure": {
+					"type": ["boolean", "string", "null"]
+				},
+				"routes": {
+					"type": "object",
+					"additionalProperties": {
+						"allOf": [{
+							"$ref": "#/$defs/eventAction"
+						}]
+					}
+				}
+			}
+		},
+		"globalEvents": {
+			"type": "object",
+			"additionalProperties": {
+				"allOf": [{
+					"$ref": "#/$defs/eventAction"
+				}]
+			}
+		},
+		"compressedSchemas": {
+			"type": ["string", "null"]
+		},
+		"compressedSchemaHtmlTemplates": {
+			"type": ["string", "null"]
+		},
+		"compressedScript": {
+			"type": ["string", "null"]
+		},
+		"compressedStyle": {
+			"type": ["string", "null"]
+		},
+		"compressedSchemasFile": {
+			"type": ["string", "boolean", "null"]
+		},
+		"compressedCompiledSchemaHtmlTemplatesFile": {
+			"type": ["string", "boolean", "null"]
+		}
+	},
+	"$defs": {
+		"eventAction": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"secure": {
+					"type": ["boolean", "string", "null"]
+				},
+				"jqselector": {
+					"type": ["string", "null"]
+				},
+				"event": {
+					"type": ["string", "null"]
+				},
+				"cond": {
+					"type": ["array", "null"],
+					"items": {
+						"type": "string"
+					}
+				},
+				"func": {
+					"type": ["string", "null"]
+				},
+				"outfunc": {
+					"type": ["string", "null"]
+				},
+				"routeTo": {
+					"type": ["string", "null"]
+				},
+				"varAssign": {
+					"type": ["object", "null"],
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"showhide": {
+					"type": ["object", "null"],
+					"properties": {
+						"cond": {
+							"type": ["array", "null"],
+							"items": {
+								"type": "string"
+							}
+						},
+						"show": {
+							"type": ["array", "null"],
+							"items": {
+								"type": "string"
+							}
+						},
+						"hide": {
+							"type": ["array", "null"],
+							"items": {
+								"type": "string"
+							}
+						},
+						"showclass": {
+							"type": ["string", "null"]
+						},
+						"hideclass": {
+							"type": ["string", "null"]
+						}
+					},
+					"additionalProperties": false
+				},
+				"draw": {
+					"type": ["object", "null"],
+					"properties": {
+						"schemaName": {
+							"type": ["string", "null"]
+						},
+						"type": {
+							"type": ["string", "null"]
+						},
+						"show": {
+							"type": ["boolean", "string", "null"]
+						}
+					},
+					"additionalProperties": false
+				},
+				"load": {
+					"type": ["object", "null"],
+					"properties": {
+						"selector": {
+							"type": ["string", "null"]
+						},
+						"template": {
+							"type": ["string", "null"]
+						},
+						"checkPresence": {
+							"type": ["boolean", "string", "null"]
+						}
+					},
+					"additionalProperties": false
+				},
+				"crudop": {
+					"type": ["object", "null"],
+					"properties": {
+						"schemaName": {
+							"type": ["string", "null"]
+						},
+						"op": {
+							"type": ["string", "null"]
+						},
+						"viewerId": {
+							"type": ["string", "null"]
+						},
+						"vars": {
+							"type": ["object", "null"],
+							"additionalProperties": {
+								"type": "string"
+							}
+						},
+						"setVars": {
+							"type": ["object", "null"],
+							"additionalProperties": {
+								"type": "string"
+							}
+						},
+						"setGlobals": {
+							"type": ["object", "null"],
+							"additionalProperties": {
+								"type": "string"
+							}
+						},
+						"show": {
+							"type": ["boolean", "string", "null"]
+						}
+					},
+					"additionalProperties": false
+				},
+				"forRoute": {
+					"type": ["array", "null"],
+					"items": {
+						"type": "string"
+					}
+				},
+				"every": {
+					"type": ["number", "null"]
+				},
+				"props": {
+					"type": ["array", "null"],
+					"items": {
+						"type": "string"
+					}
+				},
+				"isTemplate": {
+					"type": ["boolean", "null"]
+				},
+				"options": {
+					"type": ["array", "null"],
+					"items": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				},
+				"routes": {
+					"type": "object",
+					"additionalProperties": {
+						"allOf": [{
+							"$ref": "#/$defs/eventAction"
+						}]
+					}
+				}
+			},
+			"$comment": "properties [props, isTemplate, options, routes] are only to be used while defining the multi route template action and not a control event"
+		}
+	}
+}

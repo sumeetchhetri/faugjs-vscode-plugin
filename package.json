@@ -2,7 +2,7 @@
 	"name": "faugjs",
 	"description": "faugjs framework support for vscode",
 	"version": "0.0.1",
-	"publisher": "Sumeet Chhetri",
+	"publisher": "sumeetchhetri",
 	"private": true,
 	"license": "Apache",
 	"repository": {
@@ -18,24 +18,67 @@
 	"activationEvents": [
 		"*"
 	],
-	"main": "./out/extension.js",
+	"main": "./main.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "faugjs.template.validate",
+				"title": "Validate Template",
+				"category": "faugjs"
+			},
+			{
+				"command": "faugjs.compress",
+				"title": "Compress/Minify all artifacts",
+				"category": "faugjs"
+			}
+		]
+	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"lint": "eslint . --ext .ts,.tsx",
-		"watch": "tsc -w -p ./"
+		"watch": "tsc -w -p ./",
+		"vscode:package": "vsce package",
+		"vscode:prepublish": "npm run esbuild-base -- --minify",
+		"vscode:prepublish1": "npm run compile",
+		"esbuild-base": "esbuild ./src/main.ts --bundle --outfile=./main.js --external:vscode --format=cjs --platform=node",
+		"esbuild": "npm run esbuild-base -- --sourcemap",
+		"esbuild-watch": "npm run esbuild-base -- --sourcemap --watch"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@node-minify/core": "^6.2.0",
+		"@node-minify/google-closure-compiler": "^6.2.0",
+		"@node-minify/no-compress": "^6.2.0",
+		"@node-minify/sqwish": "^6.2.0",
+		"@node-minify/uglify-es": "^6.2.0",
+		"@node-minify/uglify-js": "^6.2.0",
+		"@types/js-beautify": "^1.13.2",
+		"@types/tmp": "^0.2.1",
+		"crypto": "^1.0.1",
+		"csso": "^4.2.0",
+		"esprima": "^4.0.1",
+		"fast-glob": "^3.2.7",
+		"js-beautify": "^1.14.0",
+		"jsonlint": "^1.6.3",
+		"node-minify": "^3.6.0",
+		"uglify-js": "^3.14.2",
+		"vm": "^0.1.0",
+		"xmldom": "^0.6.0",
+		"xpath": "0.0.32"
+	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
 		"@types/vscode": "^1.47.0",
 		"@types/vscode-webview": "^1.57.0",
 		"@typescript-eslint/eslint-plugin": "^4.16.0",
 		"@typescript-eslint/parser": "^4.16.0",
+		"esbuild": "^0.12.28",
 		"eslint": "^7.21.0",
 		"typescript": "^4.3.5"
 	},
 	"capabilities": {
 		"executeDocumentSymbolProvider": "true"
-	}
+	},
+	"extensionPack": [
+		"sumeetchhetri.faugjs"
+	]
 }
