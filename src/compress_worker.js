@@ -761,16 +761,6 @@ const processMinify = async(jsFileObjArr, cssFiles, config, dirPath) => {
 		error(e);
 		throw e;
 	}
-	
-	/*}).catch(function(err) {
-		let e;
-		if(cntxt==1)e = ("Compression of js files failed with error " + err);
-		else if(cntxt==2)e = ("Compaction of js files failed with error " + err);
-		else if(cntxt==3)e = ("Compression of js files failed with error " + err);
-		else e = ("Compaction of css files failed with error " + err);
-		error(e);
-		throw e;
-	});*/
 }
 
 function compress(dirPath, module, fileName, type, cb, lazyValidation, htmlTemplates) {

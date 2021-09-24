@@ -17,6 +17,8 @@ const noCompress = require('@node-minify/no-compress');
 import { DOMParser as dom } from 'xmldom';
 import * as xpath from 'xpath-ts';
 const parseJson = require('parse-json');
+let fjsdocpanel: vscode.WebviewPanel | undefined = undefined;
+let fjspanelword: string | undefined= undefined;
 
 let compressInProgress = false;
 let flogger: vscode.OutputChannel;
@@ -191,9 +193,11 @@ export function activate(context: vscode.ExtensionContext) {
 					}
 				}
 				
-				fjs.jsrefcontents = "";
-				fjs.jsrefcontentslines = 0;
+				fjs.jsrefcontents = "const jsdom = require('jsdom');const dom = new jsdom.JSDOM('<!DOCTYPE html><html><body></body></html>');const jquery = require('jquery')(dom.window);const window=dom.window;const document=dom.window.document;window['onlyFaugCore']=true;window['noFaugExtension']=true;const $=jquery;\n"
+				fjs.jsrefcontents += fs.readFileSync(context.asAbsolutePath("faug-min.js"), 'utf-8');
+				fjs.jsrefcontentslines = fjs.jsrefcontents.split("\n").length;
 				for (const jsf in fjs.jsFilesFuncList) {
+					if(jsf.endsWith("faug-min.js") || jsf.endsWith("faugn.js")) continue;
 					const syms = fjs.jsFilesFuncList[jsf];
 					for(const symn in syms) {
 						if(syms[symn][""].kind==vscode.SymbolKind.Function && symn!="<function>") {
@@ -355,6 +359,80 @@ export function activate(context: vscode.ExtensionContext) {
 			validateFjsTemplate(fjstemplatedgcoll, true);
 		})
 	);
+
+	function getNonce() {
+		let text = '';
+		const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		for (let i = 0; i < 32; i++) {
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
+		}
+		return text;
+	}
+	function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
+		return {
+			enableCommandUris: true,
+			enableScripts: true,
+			localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'fjsdoc'))]
+		};
+	}
+	function setupFjsDoc() {
+		/*
+		Once faugjs doc is updated, please replace this in the generated documentation html file
+			<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${safeurl}; img-src ${safeurl} https:; script-src 'nonce-${nonce}';">
+			<link href='${baseurl}/assets/bass.css' rel='stylesheet'>
+			<link href='${baseurl}/assets/style.css' rel='stylesheet'>
+			<link href='${baseurl}/assets/github.css' rel='stylesheet'>
+			<link href='${baseurl}/assets/split.css' rel='stylesheet'>
+			<script nonce="${nonce}" src="${baseurl}/index.js"></script>
+		*/
+		const uri = fjsdocpanel!.webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'fjsdoc'));
+		let data = fs.readFileSync(path.join(context.extensionPath, 'fjsdoc', 'index.html'), 'utf8');
+		data = data.replace(/\$\{baseurl\}/g, uri.toString());
+		data = data.replace(/\$\{safeurl\}/g, fjsdocpanel!.webview.cspSource);
+		data = data.replace(/\$\{nonce\}/g, getNonce());
+		fjsdocpanel!.webview.html = data;
+		fjsdocpanel!.onDidDispose(() => {
+			log("[main] [INFO]: Closed faugjs documentation");
+			fjsdocpanel!.dispose();
+			fjsdocpanel = undefined;
+		});
+		if(fjspanelword) {
+			fjsdocpanel!.webview.postMessage({ func: fjspanelword });
+			fjspanelword = undefined;
+		}
+	}
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('faugjs.docs', () => {
+			if(fjsdocpanel) {
+				fjsdocpanel.reveal();
+				vscode.window.showInformationMessage('faugjs documentation is already open');
+				return;
+			}
+			fjsdocpanel = vscode.window.createWebviewPanel(
+				'faugjs.doc',
+				'faugjs Documentation',
+				vscode.ViewColumn.One,
+				{
+					enableCommandUris: true,
+					enableScripts: true,
+					localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'fjsdoc'))]
+				}
+			);
+			setupFjsDoc();
+		})
+	);
+
+	if (vscode.window.registerWebviewPanelSerializer) {
+		vscode.window.registerWebviewPanelSerializer('faugjs.doc', {
+			async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
+				//log(`[main] [INFO]: Got state: ${state}`);
+				webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
+				fjsdocpanel = webviewPanel;
+				setupFjsDoc();
+			}
+		});
+	}
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('faugjs.compress', () => {
@@ -694,27 +772,43 @@ function validateFjsTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, fro
 				code = out![3];
 			}
 
-			//SyntaxError: Unexpected token ';'
-			//ReferenceError:
-			// is not defined
-			//Unexpected end of input
-			//Unexpected identifier
-			//https://github.com/microsoft/vscode-extension-samples/blob/main/code-actions-sample/src/diagnostics.ts
-			//code = code.replace(new RegExp('____r_____\\.push\\("', 'g'), '\n____r_____.push("');
 			code = code.replace('return ____r_____.join("");', '');
+			const excode = code;
 			let isvalid = true;
 			try {
-				const exlines = fjs.jsrefcontentslines! + 2 + Object.keys(tmplvars).length + 1;
+				const exlines = fjs.jsrefcontentslines! + 1 + Object.keys(tmplvars).length + 1;
 				code = fjs.jsrefcontents + "\n\n" + code;//jsb.js_beautify(code, { indent_size: 4, space_in_empty_paren: true });
-				vm.runInNewContext(code, {arg: tmplvars}, {lineOffset: -exlines, filename: tname, displayErrors: true});
+				vm.runInNewContext(code, {require: require, console: console, arg: tmplvars}, {lineOffset: -exlines, filename: tname, displayErrors: true});
 				fjstemplatedgcoll.set(doc.uri, []);
 			} catch(e) {
 				//log("[main] [ERROR]: " + e.stack);
 				const ep = e.stack.toString().split("\n");
 				if(ep[4].startsWith("SyntaxError") || ep[4].startsWith("ReferenceError") || ep[4].endsWith("is not a function")) {
 					let li = ep[0].substring(ep[0].lastIndexOf(":")+1) * 1;
-					if(ep[1].indexOf("____r_____.push(")!=-1) {
-						li = li-1;
+					//li -= (Object.keys(tmplvars).length + 1);
+					/*if(ep[1].indexOf("____r_____.push(")!=-1) {
+						li = li - 1;
+					}*/
+					const cdlines = excode.split("\n");
+					let ix = li + Object.keys(tmplvars).length;
+					while(ix>0) {
+						let tl = cdlines[ix];
+						let fl = false;
+						if(tl.startsWith("____r_____.push(")) {
+							tl = tl.substring(16);
+							fl = true;
+						}
+						const mtc = /^\/\*([0-9]+)\*\//.exec(tl);
+						if(mtc) {
+							li = parseInt(mtc[1])*1;
+							break;
+						} else {
+							if(fl) {
+								ix--;
+							} else {
+								ix++;
+							}
+						}
 					}
 					const range = doc.lineAt(li-1).range;
 					const diagnostic = new vscode.Diagnostic(range, ep[4], vscode.DiagnosticSeverity.Error);
@@ -1009,7 +1103,7 @@ class FaugJsConfigStore {
 
 	public validateTemplate(doc: vscode.TextDocument) {
 		try {
-			te(doc.getText(), undefined, undefined, undefined, undefined);
+			te(doc.getText(), undefined, undefined, undefined, undefined, true);
 		} catch (error) {
 			log("[main] [ERROR]: " + error.stack!);
 		}
@@ -1034,6 +1128,17 @@ class FaugJsConfigStore {
 	}
 
 	public resolvePossibleFunction(doc: vscode.TextDocument, word1: string|undefined, word2: string, position: vscode.Position): vscode.Location | undefined {
+		if((word1=="Faug" || word1=="Fg") && word2) {
+			if(fjsdocpanel) {
+				fjsdocpanel.reveal();
+				fjsdocpanel.webview.postMessage({ func: word2 });
+			} else {
+				fjspanelword = word2;
+				vscode.commands.executeCommand('faugjs.docs');
+			}
+			return;
+		}
+		
 		for(const filename in this.jsFilesFuncList) {
 			if(!doc.uri.fsPath.endsWith(filename)) {
 				if(word1 && this.jsFilesFuncList[filename][word1] && this.jsFilesFuncList[filename][word1][word2]) {
@@ -1287,7 +1392,7 @@ function faugX(dirPath: any, htmlTemplates: any, tname: any, options: any, flag:
 		htmlTemplates[tname] = [data];
 	} else {
 		try {
-			let fb = te(data, options, true, istmfromopts, true);
+			let fb = te(data, options, true, istmfromopts, true, true);
 			if (is('String', fb)) {
 				temerror = -1;
 				if(isValidate) {
@@ -1315,7 +1420,22 @@ function faugX(dirPath: any, htmlTemplates: any, tname: any, options: any, flag:
 	}
 }
 
-function te(html: any, options: any, retFunc: any, isVarFromOptions: any, escH: any) {
+function te(html: any, options: any, retFunc: any, isVarFromOptions: any, escH: any, isdebug: boolean) {
+	if(isdebug) {
+		const htmlparts = html.split("\n");
+		for(let i=0;i<htmlparts.length;i++) {
+			if(htmlparts[i].trim().startsWith("##")) {
+				htmlparts[i] = "##/*" + (i+1) + "*/" + htmlparts[i].trim().substring(2);
+			} else if(htmlparts[i].trim().startsWith("#")) {
+				htmlparts[i] = "#/*" + (i+1) + "*/" + htmlparts[i].trim().substring(1);
+			} else if(htmlparts[i].trim().startsWith("!!")) {
+				htmlparts[i] = "!!/*" + (i+1) + "*/" + htmlparts[i].trim().substring(2);
+			} else {
+				htmlparts[i] = "/*"+(i+1)+"*/" + htmlparts[i];
+			}
+		}
+		html = htmlparts.join("\n");
+	}
 	escH = escH === false ? false : true;
 	if (!html) {
 		if (retFunc) {
@@ -1327,9 +1447,12 @@ function te(html: any, options: any, retFunc: any, isVarFromOptions: any, escH: 
 
 	isVarFromOptions = (!isVarFromOptions) ? false : true;
 	var re = /<%(.*?)%>/g, reExp = /^#(.*)/g, reExpr = /^#(.*)/g, code = '', cursor = 0, match;
-	var mulre = /##([\s\S]*?)##/g;
-	var incre = /!!([a-zA-Z0-9_\-\.\s\/()]+)!!/g;
-	var varnamere = /^[^a-zA-Z_$]|[^\\w$]/;
+	const mulre = /##([\s\S]*?)##/g;
+	let incre = /!!([a-zA-Z0-9_\-\.\s\/()]+)!!/g;
+	const varnamere = /^[^a-zA-Z_$]|[^\\w$]/;
+	if(isdebug) {
+		incre = /!!(\/\*[0-9]+\*\/[\t ]*[a-zA-Z0-9_\-\.\s\/()]+)!!/g;
+	}
 
 	var nhtml = '';
 	while (match = mulre.exec(html)) {
@@ -1403,8 +1526,13 @@ function te(html: any, options: any, retFunc: any, isVarFromOptions: any, escH: 
 						code += isvar ? (line + '\n') : ('____r_____.push(' + line + ');\n');
 					}
 				} else {
+					let pgi = "";
+					if(isdebug && tl.startsWith("/*")) {
+						pgi = tl.substring(0, tl.indexOf("*/")+2);
+						tl = tl.substring(tl.indexOf("*/")+2);
+					}
 					line = js ? tl : ('"' + tl.replace(/"/g, '\\"') + '"');
-					code += isvar ? (line + '\n') : ('____r_____.push(' + line + ');\n');
+					code += isvar ? (line + '\n') : ('____r_____.push(' + pgi + line + ');\n');
 				}
 			} else if (incre.test(line)) {
 				code += line + '\n';
@@ -1440,7 +1568,12 @@ function te(html: any, options: any, retFunc: any, isVarFromOptions: any, escH: 
 				if (line.indexOf('____r_____.push(') == 0) {
 					code += line + "\n";
 				} else {
-					code += '____r_____.push("' + line.replace(/"/g, '\\"') + '");\n';
+					let pgi = "";
+					if(isdebug && line.startsWith("/*")) {
+						pgi = line.substring(0, line.indexOf("*/")+2);
+						line = line.substring(line.indexOf("*/")+2);
+					}
+					code += '____r_____.push( '+pgi+' "' + line.replace(/"/g, '\\"') + '");\n';
 				}
 			}
 			incre.lastIndex = 0;
@@ -1473,9 +1606,9 @@ function te(html: any, options: any, retFunc: any, isVarFromOptions: any, escH: 
 		if (line != "") {
 			if (ismatch) {
 				line = line.trim();
-				var cmps = line.split(" ");
+				var cmps = line.substring(line.lastIndexOf(".html")+5).trim().split(" ");
 				code += "var _exttargs = {};\n";
-				line = cmps[0];
+				line = line.substring(0, line.lastIndexOf(".html")+5);
 				for (var i = 1; i < cmps.length; i++) {
 					var t = cmps[i].trim();
 					if (t.indexOf("(") == 0 && t.indexOf(")") == t.length - 1) {
@@ -1486,7 +1619,12 @@ function te(html: any, options: any, retFunc: any, isVarFromOptions: any, escH: 
 						code += 'if(typeof(' + t + ') !== "undefined")_exttargs["' + t + '"] = ' + t + ';\n';
 					}
 				}
-				code += ('____r_____.push(Faug.includeTemplate(\"' + line.trim() + '\", _exttargs));\n');
+				let pgi = "";
+				if(isdebug && line.startsWith("/*")) {
+					pgi = line.substring(0, line.indexOf("*/")+2);
+					line = line.substring(line.indexOf("*/")+2);
+				}
+				code += ('____r_____.push('+pgi+'Faug.includeTemplate(\"' + line.trim() + '\", _exttargs));\n');
 			} else {
 				code += line + '\n';
 			}
@@ -1903,65 +2041,55 @@ function compressJsCss(rawHtml: any, config: any, dirPath: string, schemas: any,
 
         processMinify(jsFileObjArr, cssFiles, config, dirPath);
     }
-    
-    function processMinify(jsFileObjArr: any, cssFiles: any, config: any, dirPath: any) {
-    	// Using Google Closure Compiler
-    	let jsFileComp = [];
-    	let tempFiles = [];
-    	for(let k=0; k<jsFileObjArr.length; k++) {
-			if(jsFileObjArr[k]["isMin"] == false) {
-				let tempFileName = jsFileObjArr[k]["mname"].replace(".js", ".min.js");
-				jsFileComp.push(tempFileName);
-				tempFiles.push(tempFileName);
-				log("[main] [INFO]: " + tempFileName);
-            	minify({sync: true, compressor: uglifyjs, input: jsFileObjArr[k]["name"], output: tempFileName, options: {warnings: false, mangle: false, compress: false}});
-            } else {
-				jsFileComp.push(jsFileObjArr[k]["name"]);
-			}
-        }
-
-		let cntxt = 1;
-		try {
-			cntxt = 2;
-			minify({sync: true, compressor: noCompress, input: jsFileComp, output: dirPath + path.sep + "out" + path.sep + 'main.js'});
-			log("[main] [INFO]: Compaction of js files successfull");
-			cntxt = 3;
-			minify({sync: true, compressor: sqwish, input: cssFiles[1], output: dirPath + path.sep + "out" + path.sep + 'temp.css'});
-			cntxt = 4;
-			cssFiles[0].push(dirPath + path.sep + "out" + path.sep + 'temp.css');
-			minify({sync: true, compressor: noCompress, input: cssFiles[0], output: dirPath + path.sep + "out" + path.sep + 'resources' + path.sep + 'main.css'});
-			if(cntxt == 4) {
-				for(var s=0; s<tempFiles.length; s++) {
-					if(fs.existsSync(tempFiles[s])) {
-						fs.unlinkSync(tempFiles[s]);
-					}
-				}
-			}
-			log("[main] [INFO]: Compression of css files successfull");
-			//compressConfig();
-		} catch (err) {
-			let e;
-            if(cntxt==1)e = ("Compression of js files failed with error " + err);
-            else if(cntxt==2)e = ("Compaction of js files failed with error " + err);
-            else if(cntxt==3)e = ("Compression of js files failed with error " + err);
-            else e = ("Compaction of css files failed with error " + err);
-			log("[main] [ERROR]: " + err.stack!);
-            throw e;
-		}
-	    
-        /*}).catch(function(err) {
-            let e;
-            if(cntxt==1)e = ("Compression of js files failed with error " + err);
-            else if(cntxt==2)e = ("Compaction of js files failed with error " + err);
-            else if(cntxt==3)e = ("Compression of js files failed with error " + err);
-            else e = ("Compaction of css files failed with error " + err);
-            log("[main] [ERROR]: " + err.stack!);
-            throw e;
-        });*/
-    }
     if(module == "") {
     	validateJsFiles(jsFileObjArr, cssFiles, config, dirPath);
     }
+}
+
+const processMinify = async(jsFileObjArr: any, cssFiles: any, config: any, dirPath: any) => {
+	// Using Google Closure Compiler
+	let jsFileComp = [];
+	let tempFiles = [];
+	for(let k=0; k<jsFileObjArr.length; k++) {
+		if(jsFileObjArr[k]["isMin"] == false) {
+			let tempFileName = jsFileObjArr[k]["mname"].replace(".js", ".min.js");
+			jsFileComp.push(tempFileName);
+			tempFiles.push(tempFileName);
+			log("[main] [INFO]: " + tempFileName);
+			await minify({compressor: uglifyjs, input: jsFileObjArr[k]["name"], output: tempFileName, options: {warnings: false, mangle: false, compress: false}});
+		} else {
+			jsFileComp.push(jsFileObjArr[k]["name"]);
+		}
+	}
+
+	let cntxt = 1;
+	try {
+		cntxt = 2;
+		await minify({compressor: noCompress, input: jsFileComp, output: dirPath + path.sep + "out" + path.sep + 'main.js'});
+		log("[main] [INFO]: Compaction of js files successfull");
+		cntxt = 3;
+		await minify({compressor: sqwish, input: cssFiles[1], output: dirPath + path.sep + "out" + path.sep + 'temp.css'});
+		cntxt = 4;
+		cssFiles[0].push(dirPath + path.sep + "out" + path.sep + 'temp.css');
+		await minify({compressor: noCompress, input: cssFiles[0], output: dirPath + path.sep + "out" + path.sep + 'resources' + path.sep + 'main.css'});
+		if(cntxt == 4) {
+			for(var s=0; s<tempFiles.length; s++) {
+				if(fs.existsSync(tempFiles[s])) {
+					fs.unlinkSync(tempFiles[s]);
+				}
+			}
+		}
+		log("[main] [INFO]: Compression of css files successfull");
+		//compressConfig();
+	} catch (err) {
+		let e;
+		if(cntxt==1)e = ("Compression of js files failed with error " + err);
+		else if(cntxt==2)e = ("Compaction of js files failed with error " + err);
+		else if(cntxt==3)e = ("Compression of js files failed with error " + err);
+		else e = ("Compaction of css files failed with error " + err);
+		log("[main] [ERROR]: " + err.stack!);
+		throw e;
+	}
 }
 
 function compress(dirPath: any, module: any, fileName: any, type: any, cb: any, lazyValidation: any, htmlTemplates: any) {

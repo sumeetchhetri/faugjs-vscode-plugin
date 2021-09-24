@@ -16,7 +16,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"*"
+		"*",
+		"onWebviewPanel:faugjs.doc"
 	],
 	"main": "./main.js",
 	"contributes": {
@@ -34,6 +35,11 @@
 			{
 				"command": "faugjs.serve",
 				"title": "Serve faugjs application",
+				"category": "faugjs"
+			},
+			{
+				"command": "faugjs.docs",
+				"title": "Load faugjs documentation",
 				"category": "faugjs"
 			}
 		]
@@ -59,7 +65,9 @@
 		"esprima": "^4.0.1",
 		"fast-glob": "^3.2.7",
 		"http": "0.0.1-security",
+		"jquery": "^3.6.0",
 		"js-beautify": "^1.14.0",
+		"jsdom": "^17.0.0",
 		"node-static": "^0.7.11",
 		"parse-json": "^5.2.0",
 		"stoppable": "^1.1.0",
