@@ -1,7 +1,7 @@
 {
 	"name": "faugjs",
 	"description": "faugjs framework support for vscode",
-	"version": "0.0.1",
+	"version": "1.0",
 	"publisher": "sumeetchhetri",
 	"private": true,
 	"license": "Apache",
