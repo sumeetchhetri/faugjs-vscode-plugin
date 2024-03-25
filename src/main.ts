@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import FastGlob = require("fast-glob");
 import * as cr from 'crypto';
 import * as vm from 'vm';
@@ -14,9 +15,10 @@ const gcc = require('@node-minify/google-closure-compiler');
 const uglifyjs = require('@node-minify/terser');
 const sqwish = require('@node-minify/sqwish');
 const noCompress = require('@node-minify/no-compress');
-import { DOMParser as dom } from 'xmldom';
+const { DOMParser } = require('xmldom');
 import * as xpath from 'xpath-ts';
 const parseJson = require('parse-json');
+const XRegExp = require('xregexp');
 let fjsdocpanel: vscode.WebviewPanel | undefined = undefined;
 let fjspanelword: string | undefined= undefined;
 
@@ -96,7 +98,7 @@ export function activate(context: vscode.ExtensionContext) {
 				if (vscode.window.activeTextEditor) {
 					const doc = vscode.window.activeTextEditor!.document;
 					if (doc.uri.fsPath.endsWith(".html")) {
-						validateFjsTemplate(fjstemplatedgcoll, false);
+						validateFjsTemplate(fjstemplatedgcoll, 1);
 					}
 				}
 
@@ -311,7 +313,7 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.workspace.onDidSaveTextDocument(async (doc) => {
 				const docact = vscode.window.activeTextEditor!.document;
 				if (docact.uri.fsPath == doc.uri.fsPath && doc.uri.fsPath.endsWith(".html")) {
-					validateFjsTemplate(fjstemplatedgcoll, false);
+					validateFjsTemplate(fjstemplatedgcoll, 1);
 				} else if(docact.uri.fsPath == doc.uri.fsPath && doc.uri.fsPath.endsWith(".js")) {
 					const fjs = FaugJsConfigStore.getFaugJsConfigStore(doc);
 					if(fjs && fjs.isReady && fjs.isModule(doc.uri)) {
@@ -336,7 +338,7 @@ export function activate(context: vscode.ExtensionContext) {
 		context.subscriptions.push(
 			vscode.window.onDidChangeActiveTextEditor(te => {
 				if (te!.document.uri.fsPath.endsWith(".html")) {
-					validateFjsTemplate(fjstemplatedgcoll, false);
+					validateFjsTemplate(fjstemplatedgcoll, 1);
 				}
 			})
 		);
@@ -344,7 +346,7 @@ export function activate(context: vscode.ExtensionContext) {
 		/*context.subscriptions.push(
 			vscode.workspace.onDidChangeTextDocument(e => {
 				if (e && e.document.uri.fsPath.endsWith(".html")) {
-					validateFjsTemplate(fjstemplatedgcoll, false);
+					validateFjsTemplate(fjstemplatedgcoll, 1);
 				}
 			})
 		);*/
@@ -356,7 +358,31 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('faugjs.template.validate', () => {
-			validateFjsTemplate(fjstemplatedgcoll, true);
+			validateFjsTemplate(fjstemplatedgcoll, 2);
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('faugjs.template.code', () => {
+			validateFjsTemplate(fjstemplatedgcoll, 3);
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('faugjs.template.format', () => {
+			formatTemplate(fjstemplatedgcoll, 1);
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('faugjs.template.onlyhtml', () => {
+			formatTemplate(fjstemplatedgcoll, 2);
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('faugjs.template.onlyjs', () => {
+			formatTemplate(fjstemplatedgcoll, 3);
 		})
 	);
 
@@ -745,7 +771,36 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(defJsonProvider);
 }
 
-function validateFjsTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, fromCmd: boolean) {
+const resolvePath = (filepath: string): string =>
+{
+	if (filepath[0] === '~')
+	{
+		const hoveVar = process.platform === 'win32' ? 'USERPROFILE' : 'HOME';
+		return path.join(process.env[hoveVar], filepath.slice(1));
+	}
+	else
+	{
+		return path.resolve(filepath);
+	}
+};
+
+const saveAndOpenNewTmpFile = (tname: string, fdata: string): void => {
+	const tempdir = resolvePath(vscode.workspace.getConfiguration('createtmpfile').get('tmpDir') || os.tmpdir());
+	const newFile = vscode.Uri.parse('untitled:' + path.join(tempdir, tname));
+	vscode.workspace.openTextDocument(newFile).then(document => {
+		const edit = new vscode.WorkspaceEdit();
+		edit.insert(newFile, new vscode.Position(0, 0), fdata);
+		return vscode.workspace.applyEdit(edit).then(success => {
+			if (success) {
+				vscode.window.showTextDocument(document);
+			} else {
+				vscode.window.showInformationMessage('Error!');
+			}
+		});
+	});
+}
+
+function validateFjsTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, mode: number) {
 	const doc = vscode.window.activeTextEditor!.document;
 	const fjs = FaugJsConfigStore.getFaugJsConfigStore(doc);
 	const tname = fjs!.getTemplate(doc.uri.fsPath);
@@ -773,6 +828,11 @@ function validateFjsTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, fro
 			}
 
 			code = code.replace('return ____r_____.join("");', '');
+			if(mode==3) {
+				const fdata = jsb.js_beautify(code);
+				saveAndOpenNewTmpFile(tname+'.js', fdata);
+				return;
+			}
 			const excode = code;
 			let isvalid = true;
 			try {
@@ -783,7 +843,7 @@ function validateFjsTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, fro
 			} catch(e) {
 				//log("[main] [ERROR]: " + e.stack);
 				const ep = e.stack.toString().split("\n");
-				if(ep[4].startsWith("SyntaxError") || ep[4].startsWith("ReferenceError") || ep[4].endsWith("is not a function")) {
+				if(ep[4].startsWith("SyntaxError") || /*ep[4].startsWith("ReferenceError") ||*/ ep[4].endsWith("is not a function")) {
 					let li = ep[0].substring(ep[0].lastIndexOf(":")+1) * 1;
 					//li -= (Object.keys(tmplvars).length + 1);
 					/*if(ep[1].indexOf("____r_____.push(")!=-1) {
@@ -820,12 +880,14 @@ function validateFjsTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, fro
 				//log("[main] [INFO]: " + ep[0]);
 				//log("[main] [INFO]: " + ep[4]);
 			}
-			if(isvalid && fromCmd) {
+			if(isvalid && mode==2) {
 				vscode.window.showInformationMessage("VALID faugjs template -> " + tname);
 			}
 		} catch (error) {
 			log("[main] [ERROR]: " + error.stack!);
 		}
+	} else {
+		vscode.window.showInformationMessage("Faugjs is initializing, please wait...");
 	}
 }
 
@@ -1385,6 +1447,97 @@ function compressSchemas(config: any, fileName: any, type: any, dirPath: any, sc
 }
 
 let currtemcode: string, temerror = 0;
+function formatTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, mode: number) {
+	const doc = vscode.window.activeTextEditor!.document;
+	let data = fs.readFileSync(doc.uri.fsPath, 'utf8');
+	let lines = data.split('\n');
+	const tlen = lines.length;
+	data = '';
+	let ln = 1;
+	for(const l of lines) {
+		data += l + ' <!--___'+(ln++)+'___-->\n'
+	}
+	//console.log(data);
+
+	const opts = {"preserve-newlines": true};
+	let jssc = '';
+	let tmp = XRegExp.match(data, XRegExp('^([\\t ]*)##([\\s\\S\\n]*?)##.*', 'gm'), 'all', opts);
+	for(const t of tmp) {
+		for(let l of t.split("\n")) {
+			if(l.trim().startsWith("##")) jssc += l.replace('##', '') + '\n';
+			else if(l.indexOf("##")!=-1) {
+				jssc += XRegExp.replace(l, XRegExp('## <!--___(\\d+)___-->', 'g'), '<!--___$1___-->', 'all', opts) + '\n';
+			} else jssc += l + '\n';
+		}
+	}
+	data = XRegExp.replace(data, XRegExp('^([\\t ]*)##([\\s\\S\\n]*?)##.*', 'gm'), '', 'all');
+	tmp = XRegExp.match(data, XRegExp('^([\\t ]*)#(.*)', 'gm'), 'all', opts);
+	data = XRegExp.replace(data, XRegExp('^([\\t ]*)#(.*)', 'gm'), '', 'all');
+	for(let l of tmp) {
+		l = l.replace('#', '');
+		jssc += l + '\n';
+	}
+	tmp = XRegExp.match(data, XRegExp('^([\\t ]*)!!(.*)!!.*', 'gm'), 'all', opts);
+	data = XRegExp.replace(data, XRegExp('^([\\t ]*)!!(.*)!!.*', 'gm'), '', 'all');
+	for(const l of tmp) {
+		jssc += l.substring(0, l.indexOf('!!')) + '//' + l.substring(l.indexOf('!!')) + '\n';
+	}
+	let jscc1 = XRegExp.replace(jssc, XRegExp('<!--___(\\d+)___-->', 'g'), '//$1', 'all', opts);
+	jscc1 = jscc1.split("\n").sort(function(a,b) {
+		const ad = a.substring(a.lastIndexOf("//")+2);
+		const bd = b.substring(b.lastIndexOf("//")+2);
+		return ad-bd;
+	}).join("\n");
+	
+	//console.log(js_beautify(jscc1));
+	jscc1 = jsb.js_beautify(jscc1).split("\n");
+	var jsmap = jscc1.reduce(function(map, line) {
+		const ln = line.substring(line.lastIndexOf("//")+2);
+		map[ln*1] = line.substring(0, line.lastIndexOf("//"));
+		if(line.trim()=="") {
+			map[ln*1] = "";
+		} else {
+			const spacesAtStart = map[ln*1].length - map[ln*1].trimLeft().length;
+			if(map[ln*1].indexOf("//!!")!=-1) {
+				map[ln*1] = map[ln*1].replace('//!!', '!!');
+			} else {
+				map[ln*1] = map[ln*1].substring(0, spacesAtStart) + (mode!=3?'#':'') + map[ln*1].substring(spacesAtStart);
+			}
+		}
+		return map;
+	}, {});
+
+	data = XRegExp.replace(data, XRegExp('<%(.*?)%>', 'g'), '__%%__$1__%%__', 'all');
+	data = jsb.html_beautify(data).split("\n");
+	var htmap = data.reduce(function(map, line) {
+		const ln = line.substring(line.lastIndexOf("<!--___")+7).replace('___-->', '');
+		map[ln*1] = line.substring(0, line.lastIndexOf("<!--___"));
+		return map;
+	}, {});
+	//console.log(data);
+
+	let fdata = '';
+	let lastind = '', don = false;
+	for(let i=1;i<=tlen;i++) {
+		if(mode<=2 && htmap[i]) {
+			if(!don) lastind = XRegExp.match(htmap[i], XRegExp('^([\\t ]*)'));
+			fdata += htmap[i] + '\n';
+		} else if((mode==1 || mode==3) && jsmap[i]) {
+			if(lastind && !don) don = true;
+			fdata += jsmap[i] + '\n';
+		} else fdata += '\n';
+	}
+	if(mode<=2) fdata = XRegExp.replace(fdata, XRegExp('__%%__(.*?)__%%__', 'g'), '<%$1%>', 'all');
+	let tname = doc.uri.fsPath.substring(doc.uri.fsPath.lastIndexOf(path.sep)+1);
+	if(mode==2) {
+		saveAndOpenNewTmpFile(tname, fdata);
+	} else if(mode==3) {
+		tname += ".js"
+		saveAndOpenNewTmpFile(tname, fdata);
+	} else {
+		fs.writeFileSync(doc.uri.fsPath, fdata, 'utf8');
+	}
+}
 function faugX(dirPath: any, htmlTemplates: any, tname: any, options: any, flag: any, istmfromopts: any, isValidate: any) {
 	flag = isN(flag) ? false : flag;
 	let data = fs.readFileSync(dirPath + path.sep + tname, 'utf8');

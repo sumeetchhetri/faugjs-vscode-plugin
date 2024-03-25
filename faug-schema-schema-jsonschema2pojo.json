@@ -1,0 +1,1030 @@
+{
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"type": ["string", "null"]
+		},
+		"$id": {
+			"type": ["string", "null"]
+		},
+		"type": {
+			"const": "object"
+		},
+		"templatize": {
+			"type": ["boolean", "null"]
+		},
+		"serializeTemplate": {
+			"type": ["string", "null"]
+		},
+		"properties": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["type"],
+			"properties": {
+				"show": {
+					"type": ["boolean", "string", "null"]
+				},
+				"readonly": {
+					"type": ["boolean", "string", "null"]
+				},
+				"timepicker": {
+					"type": ["boolean", "string", "null"]
+				},
+				"edit": {
+					"type": ["boolean", "string", "null"]
+				},
+				"type": {
+					"type": "string",
+					"enum": ["String", "string", "number", "boolean", "object", "array", "html", "integer", "file", 
+						"fileasbase64", "date", "float", "double", "decimal", "datetime", "timestamp", "time",
+						"customdate", "email", "url", "password", "numeric"]
+				},
+				"default": {
+					"type": ["string", "boolean", "number", "null", "array", "object"]
+				},
+				"display": {
+					"type": ["string", "null"]
+				},
+				"showlabel": {
+					"type": ["boolean", "string", "null"]
+				},
+				"showicon": {
+					"type": ["boolean", "string", "null"]
+				},
+				"addId": {
+					"type": ["boolean", "string", "null"]
+				},
+				"showhelptext": {
+					"type": ["boolean", "string", "null"]
+				},
+				"required": {
+					"type": ["boolean", "string", "null"]
+				},
+				"isTemplate": {
+					"type": ["boolean", "string", "null"]
+				},
+				"genericOptionTemplateFile": {
+					"type": ["string", "null"]
+				},
+				"optionTemplateFile": {
+					"type": ["string", "null"]
+				},
+				"genericTemplateFile": {
+					"type": ["string", "null"]
+				},
+				"defaultIndex": {
+					"type": ["number", "string", "null"]
+				},
+				"ui": {
+					"type": ["string", "null"],
+					"enum": ["radio", "textarea", "checkbox", "hidden", "number", "text", "email", "file", "password", "url", null]
+				},
+				"transient": {
+					"type": ["boolean", "string", "null"]
+				},
+				"value": {
+					"type": ["string", "null"]
+				},
+				"dateFormat": {
+					"type": ["string", "null"]
+				},
+				"serializeValueFunction": {
+					"type": ["string", "null"]
+				},
+				"serializeValuePosition": {
+					"type": ["string", "null"]
+				},
+				"elementHtml": {
+					"type": ["string", "null"]
+				},
+				"initialentries": {
+					"type": ["number", "null"]
+				},
+				"noaddbutton": {
+					"type": ["boolean", "string", "null"]
+				},
+				"groupMarker": {
+					"type": ["boolean", "string", "null"]
+				},
+				"norembutton": {
+					"type": ["boolean", "string", "null"]
+				},
+				"nolabel": {
+					"type": ["boolean", "string", "null"]
+				},
+				"vars": {
+					"type": ["object", "null"],
+					"additionalProperties": {
+						"type": ["string", "null"]
+					}
+				},
+				"valueAssign": {
+					"type": ["object", "null"],
+					"additionalProperties": {
+						"type": ["string", "null"]
+					}
+				},
+				"attrAssign": {
+					"oneOf" : [{
+						"type": ["array", "null"],
+						"items": {
+							"type": "object",
+							"additionalProperties": {
+								"type": ["string", "null"]
+							}
+						}
+					}, {
+						"type": ["object", "null"],
+						"additionalProperties": {
+							"type": ["string", "null"]
+						}
+					}]
+				},
+				"custom": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"properties": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"customTemplate": {
+									"type": ["string", "null"]
+								}
+							}
+						},
+						"show": {
+							"type": ["boolean", "null"]
+						},
+						"customTemplate": {
+							"type": ["string", "null"]
+						},
+						"html": {
+							"type": ["string", "null"]
+						},
+						"class": {
+							"type": ["string", "null"]
+						},
+						"classpos": {
+							"type": ["string", "null"],
+							"enum": ["append", "prepend", "clear"]
+						},
+						"el": {
+							"type": ["string", "null"]
+						},
+						"style": {
+							"type": ["string", "null"]
+						},
+						"stylepos": {
+							"type": ["string", "null"],
+							"enum": ["append", "prepend", "clear"]
+						},
+						"attrs": {
+							"type": ["object", "null"]
+						},
+						"attrpos": {
+							"type": ["string", "null"],
+							"enum": ["append", "prepend", "clear"]
+						},
+						"icon": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"custom": {"$ref": "#/properties/properties/properties/custom"}
+							}
+						},
+						"label": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"custom": {"$ref": "#/properties/properties/properties/custom"}
+							}
+						},
+						"header": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"custom": {"$ref": "#/properties/properties/properties/custom"}
+							}
+						},
+						"parent": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"custom": {"$ref": "#/properties/properties/properties/custom"}
+							}
+						},
+						"helpText": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"custom": {"$ref": "#/properties/properties/properties/custom"}
+							}
+						},
+						"addButton": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"custom": {"$ref": "#/properties/properties/properties/custom"},
+								"html": {
+									"type": ["string", "null"]
+								}
+							}
+						},
+						"remButton": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"custom": {"$ref": "#/properties/properties/properties/custom"},
+								"html": {
+									"type": ["string", "null"]
+								}
+							}
+						},
+						"container": {"$ref": "#/properties/properties/properties/custom"},
+						"opts": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": ["string", "null"]
+								},
+								"icon": {
+									"type": ["string", "null"]
+								},
+								"helptext": {
+									"type": ["string", "null"]
+								},
+								"customhtml": {
+									"type": ["string", "null"]
+								},
+								"element": {
+									"type": ["string", "null"]
+								},
+								"cc": {
+									"type": ["string", "null"]
+								},
+								"cs": {
+									"type": ["string", "null"]
+								},
+								"ca": {
+									"type": ["string", "null"]
+								}
+							}
+						}
+					}
+				},
+				"enum": {
+					"type": ["array", "null"],
+					"items": {
+						"oneOf" : [{
+							"type": "array",
+							"minItems": 1,
+							"maxItems": 1
+						}, {
+							"type" : "array",
+							"minItems": 2,
+							"maxItems": 2
+						}]
+					}
+				},
+				"validations": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"cond": {
+							"type": ["array", "null"],
+							"items": {
+								"oneOf" : [{
+									"type": "array",
+									"minItems": 1,
+									"maxItems": 1,
+									"items": {
+										"type": ["string", "null"]
+									}
+								}, {
+									"type" : "array",
+									"minItems": 2,
+									"maxItems": 2,
+									"items": {
+										"type": ["string", "null"]
+									}
+								}]
+							}
+						},
+						"errorselector": {
+							"type": ["string", "null"]
+						}
+					}
+				},
+				"dateConfig": {
+					"type": ["object", "null"]
+				},
+				"events": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "array",
+						"items": {
+							"oneOf" : [
+								{"$ref": "#/properties/namedEvents"},
+								{"type": ["string", "null"]}
+							]
+						}
+					}
+				},
+				"properties": {
+					"$ref" : "#/properties/properties"
+				},
+				"items": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"type": { "type": ["string", "null"] },
+						"custom": {"$ref": "#/properties/properties/properties/custom"},
+						"show": {
+							"type": ["boolean", "string", "null"]
+						},
+						"itemrembutton": {
+							"type": ["boolean", "string", "null"]
+						},
+						"groupMarker": {
+							"type": ["boolean", "string", "null"]
+						},
+						"summaryTemplateDynamic": {
+							"type": ["boolean", "string", "null"]
+						},
+						"summaryTemplate": {
+							"type": ["boolean", "string", "null"]
+						},
+						"required": {
+							"type": ["boolean", "string", "null"]
+						},
+						"nominmaxbutton": {
+							"type": ["boolean", "string", "null"]
+						},
+						"minitems": {
+							"type": ["number", "null"]
+						},
+						"display": {
+							"type": ["string", "null"]
+						},
+						"properties": {
+							"$ref" : "#/properties/properties"
+						},
+						"callbacks": {"$ref": "#/$defs/callbackAction"}
+					}
+				}
+			},
+			"if": {
+				"properties": {
+					"type": {"const": "array"}
+				},
+				"required": ["type"]
+			},
+			"then": {
+				"properties": {
+					"items": {}
+				},
+				"required": ["items"]
+			},
+			"else": {
+				"if": {
+					"properties": {
+						"type": {"const": "object"}
+					},
+					"required": ["type"]
+				},
+				"then": {
+					"properties": {
+						"properties": {}
+					},
+					"required": ["properties"]
+				}
+			}
+		},
+		"namedEvents": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"type": {
+					"type": ["string", "null"],
+					"enum": ["ajax", "func", "full", "local", "", "null"]
+				},
+				"fromVar": {
+					"type": ["string", "null"]
+				},
+				"func": {
+					"type": ["string", "null"]
+				},
+				"target": {
+					"type": ["string", "null"]
+				},
+				"freezeUi": {
+					"type": ["boolean", "null"]
+				},
+				"meth": {
+					"type": ["string", "null"],
+					"enum": ["GET", "PUT", "POST", "DELETE"]
+				},
+				"url": {
+					"type": ["string", "null"]
+				},
+				"content": {
+					"type": ["string", "null"]
+				},
+				"values": {
+					"type": ["array", "null"],
+					"items": {
+						"type": ["string", "number", "null"]
+					}
+				},
+				"hide": {
+					"type": ["array", "null"],
+					"items": {
+						"type": ["string", "null"]
+					}
+				},
+				"show": {
+					"type": ["array", "null"],
+					"items": {
+						"type": ["string", "null"]
+					}
+				},
+				"how": {
+					"type": ["string", "null"]
+				},
+				"from": {
+					"type": ["string", "null"]
+				},
+				"udvars": {
+					"type": "object"
+				},
+				"done": {
+					"type": ["array", "null"],
+					"items": {
+						"allOf": [{
+							"$ref": "#/properties/namedEvents"
+						}]
+					}
+				}
+			}
+		},
+		"details": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["name"],
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"label": {
+					"type": ["string", "null"]
+				},
+				"labelEleId": {
+					"type": ["string", "null"]
+				},
+				"form": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": ["id"],
+					"properties": {
+						"id": {
+							"type": "string"
+						},
+						"name": {
+							"type": ["string", "null"]
+						},
+						"create": {
+							"type": ["boolean", "null"]
+						},
+						"show": {
+							"type": ["boolean", "null"]
+						},
+						"parentEleId": {
+							"type": ["string", "null"]
+						},
+						"crudopName": {
+							"type": ["string", "null"]
+						},
+						"position": {
+							"type": ["string", "null"]
+						},
+						"showReset": {
+							"type": ["boolean", "null"]
+						},
+						"isModal": {
+							"type": ["boolean", "null"]
+						},
+						"isInline": {
+							"type": ["boolean", "null"]
+						},
+						"resetOnDone": {
+							"type": ["boolean", "null"]
+						},
+						"noHtml5Validation": {
+							"type": ["boolean", "null"]
+						},
+						"isDataTable": {
+							"type": ["boolean", "null"]
+						},
+						"serverPaginate": {
+							"type": ["boolean", "null"]
+						},
+						"validateHiddenElements": {
+							"type": ["boolean", "null"]
+						},
+						"custom": {"$ref": "#/properties/properties/properties/custom"},
+						"form": {"$ref": "#/properties/details/properties/form"},
+						"submit": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"custom": {"$ref": "#/properties/properties/properties/custom"},
+								"label": {
+									"type": ["string", "null"]
+								}
+							}
+						},
+						"callbacks": {"$ref": "#/$defs/callbackAction"},
+						"helperArea": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"schema": {
+									"type": "object"
+								},
+								"initObject": {
+									"type": "string"
+								},
+								"details": {
+									"$ref": "#/properties/details/properties/form"
+								}
+							}
+						}
+					}
+				},
+				"editForm": {
+					"$ref": "#/properties/details/properties/form"
+				},
+				"viewer": {
+					"oneOf" : [{
+						"type": "object",
+						"additionalProperties": false
+					}, {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"allOf": [{
+								"$ref": "#/properties/details/properties/form"
+							}],
+							"properties": {
+								"helperArea": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"schema": {
+											"type": "object",
+											"additionalProperties": false,
+											"properties": {
+												"type": {
+													"const": "object"
+												},
+												"properties": {
+													"type": "object",
+													"additionalProperties": {
+														"allOf": [{
+															"$ref": "#/properties/properties"
+														}]
+													}
+												}
+											}
+										},
+										"initObject": {
+											"type": "string"
+										},
+										"details": {
+											"type": "object"
+										}
+									}
+								}
+							}
+						}
+					}]
+				},
+				"callbacks": {"$ref": "#/$defs/callbackAction"}
+			}
+		},
+		"defaultOp": {
+			"type": "string"
+		},
+		"crud": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"freezeUi": {
+					"type": ["boolean", "null"]
+				},
+				"meth": {
+					"type": ["string", "null"],
+					"enum": ["GET", "PUT", "POST", "DELETE"]
+				},
+				"type": {
+					"type": ["string", "null"]
+				},
+				"inline": {
+					"type": ["boolean", "null"]
+				},
+				"from": {
+					"type": ["string", "null"]
+				},
+				"url": {
+					"type": ["string", "null"]
+				},
+				"viewerId": {
+					"type": ["string", "null"]
+				},
+				"contentType": {
+					"type": ["string", "null"]
+				},
+				"content": {
+					"type": ["string", "null"]
+				},
+				"headers": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"exResCd": {
+					"type": "number"
+				},
+				"template": {
+					"oneOf" : [{
+						"type": ["string", "null"]
+					}, {
+						"type": "object",
+						"properties": {
+							"vars": {
+								"type": "array"
+							},
+							"values": {
+								"type": "array"
+							}
+						}
+					}]
+				},
+				"dataRef": {
+					"type": ["string", "null"]
+				},
+				"storeAs": {
+					"type": ["string", "null"]
+				},
+				"showdropdownmenu": {
+					"type": "boolean"
+				},
+				"dropdownmenuItem": {
+					"type": "object"
+				},
+				"forTemplate": {
+					"type": "boolean"
+				},
+				"callbacks": {"$ref": "#/$defs/callbackAction"},
+				"vars": {
+					"type": "object"
+				},
+				"table": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"id": {
+							"type": "string"
+						},
+						"download": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"enabled": {
+									"type": ["boolean", "null"]
+								}
+							}
+						},
+						"downloadpdf": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"enabled": {
+									"type": ["boolean", "null"]
+								}
+							}
+						},
+						"pagination": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"enabled": {
+									"type": ["boolean", "null"]
+								},
+								"numpages": {
+									"type": "array",
+									"items": {
+										"type": "number"
+									}
+								},
+								"invokeApiOnChange": {
+									"type": ["boolean", "null"]
+								}
+							}
+						},
+						"search": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"selector": {
+									"type": ["string", "null"]
+								},
+								"show": {
+									"type": ["boolean", "null"]
+								},
+								"enabled": {
+									"type": ["boolean", "null"]
+								},
+								"fields": {
+									"type": "array",
+									"items": {
+										"type": "number"
+									}
+								},
+								"invokeApiOnChange": {
+									"type": ["boolean", "null"]
+								},
+								"events": {
+									"type": "object",
+									"additionalProperties": {
+										"allOf": [{
+											"$ref": "#/$defs/eventAction"
+										}]
+									}
+								}
+							}
+						}
+					}
+				},
+				"canvasDataGrid": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"enabled": {
+							"type": ["boolean", "null"]
+						},
+						"schema": {
+							"type": "array"
+						}
+					}
+				}
+			}
+		},
+		"dynamicAspects": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"cond": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"valueset": {
+						"type": "object"
+					},
+					"value": {
+						"type": ["string", "boolean", "number", "null", "array", "object"]
+					}
+				}
+			}
+		}
+	},
+	"$defs": {
+		"eventAction": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"name": {
+					"type": ["string", "null"]
+				},
+				"secure": {
+					"type": ["boolean", "string", "null"]
+				},
+				"jqselector": {
+					"type": ["string", "null"]
+				},
+				"event": {
+					"type": ["string", "null"]
+				},
+				"cond": {
+					"type": ["array", "null"],
+					"items": {
+						"type": "string"
+					}
+				},
+				"func": {
+					"type": ["string", "null"]
+				},
+				"outfunc": {
+					"type": ["string", "null"]
+				},
+				"routeTo": {
+					"type": ["string", "null"]
+				},
+				"varAssign": {
+					"type": ["object", "null"],
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"vars": {
+					"type": ["object", "null"],
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"showhide": {
+					"type": ["object", "null"],
+					"properties": {
+						"cond": {
+							"type": ["array", "null"],
+							"items": {
+								"type": "string"
+							}
+						},
+						"show": {
+							"type": ["array", "null"],
+							"items": {
+								"type": "string"
+							}
+						},
+						"hide": {
+							"type": ["array", "null"],
+							"items": {
+								"type": "string"
+							}
+						},
+						"showclass": {
+							"type": ["string", "null"]
+						},
+						"hideclass": {
+							"type": ["string", "null"]
+						}
+					},
+					"additionalProperties": false
+				},
+				"draw": {
+					"type": ["object", "null"],
+					"properties": {
+						"schemaName": {
+							"type": ["string", "null"]
+						},
+						"type": {
+							"type": ["string", "null"]
+						},
+						"show": {
+							"type": ["boolean", "string", "null"]
+						}
+					},
+					"additionalProperties": false
+				},
+				"load": {
+					"type": ["object", "null"],
+					"properties": {
+						"selector": {
+							"type": ["string", "null"]
+						},
+						"template": {
+							"type": ["string", "null"]
+						},
+						"checkPresence": {
+							"type": ["boolean", "string", "null"]
+						}
+					},
+					"additionalProperties": false
+				},
+				"crudop": {
+					"type": ["object", "null"],
+					"properties": {
+						"schemaName": {
+							"type": ["string", "null"]
+						},
+						"op": {
+							"type": ["string", "null"]
+						},
+						"viewerId": {
+							"type": ["string", "null"]
+						},
+						"vars": {
+							"type": ["object", "null"],
+							"additionalProperties": {
+								"type": "string"
+							}
+						},
+						"viewerPos": {
+							"type": ["string", "null"]
+						},
+						"func": {
+							"type": ["string", "null"]
+						},
+						"setVars": {
+							"type": ["object", "null"],
+							"additionalProperties": {
+								"type": "string"
+							}
+						},
+						"setGlobals": {
+							"type": ["object", "null"],
+							"additionalProperties": {
+								"type": "string"
+							}
+						},
+						"show": {
+							"type": ["boolean", "string", "null"]
+						}
+					},
+					"additionalProperties": false
+				},
+				"forRoute": {
+					"type": ["array", "null"],
+					"items": {
+						"type": "string"
+					}
+				},
+				"every": {
+					"type": ["number", "null"]
+				},
+				"alert": {
+					"type": "object"
+				},
+				"confirm": {
+					"type": "object"
+				},
+				"prompt": {
+					"type": "object"
+				}
+			}
+		},
+		"callbackActionType": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"func": {
+					"type": "string"
+				},
+				"vars": {
+					"type": "object"
+				},
+				"routeTo": {
+					"type": "string"
+				},
+				"outfunc": {
+					"type": ["string", "null"]
+				},
+				"controlEvents": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/eventAction"
+					}
+				}
+			}
+		},
+		"callbackAction": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"onValidateOp": {"$ref": "#/$defs/callbackActionType"},
+				"onOp": {"$ref": "#/$defs/callbackActionType"},
+				"afterOp": {"$ref": "#/$defs/callbackActionType"},
+				"beforeOp": {"$ref": "#/$defs/callbackActionType"},
+				"failure": {"$ref": "#/$defs/callbackActionType"},
+				"beforeDraw": {"$ref": "#/$defs/callbackActionType"},
+				"afterDraw": {"$ref": "#/$defs/callbackActionType"},
+				"beforeLoad": {"$ref": "#/$defs/callbackActionType"},
+				"afterLoad": {"$ref": "#/$defs/callbackActionType"},
+				"addItem": {"$ref": "#/$defs/callbackActionType"},
+				"removeItem": {"$ref": "#/$defs/callbackActionType"},
+				"onReset": {"$ref": "#/$defs/callbackActionType"},
+				"transformElements": {"$ref": "#/$defs/callbackActionType"},
+				"func": {
+					"type": "string"
+				},
+				"initData": {
+					"type": "string"
+				},
+				"initDataGvar": {
+					"type": "string"
+				},
+				"serializeContent": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}

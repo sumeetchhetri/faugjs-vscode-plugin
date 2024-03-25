@@ -1,7 +1,7 @@
 {
 	"name": "faugjs",
 	"description": "faugjs framework support for vscode",
-	"version": "1.0",
+	"version": "2.0.0",
 	"publisher": "sumeetchhetri",
 	"private": true,
 	"license": "Apache",
@@ -13,20 +13,14 @@
 		"vscode": "^1.47.0"
 	},
 	"categories": [
-		"Other"
+		"Programming Languages"
 	],
 	"activationEvents": [
-		"*",
 		"onWebviewPanel:faugjs.doc"
 	],
 	"main": "./main.js",
 	"contributes": {
 		"commands": [
-			{
-				"command": "faugjs.template.validate",
-				"title": "Validate Template",
-				"category": "faugjs"
-			},
 			{
 				"command": "faugjs.compress",
 				"title": "Compress/Minify all artifacts",
@@ -41,6 +35,57 @@
 				"command": "faugjs.docs",
 				"title": "Load faugjs documentation",
 				"category": "faugjs"
+			},
+			{
+				"command": "faugjs.template.validate",
+				"title": "Validate faugjs Template",
+				"category": "faugjs"
+			},
+			{
+				"command": "faugjs.template.format",
+				"title": "Format faugjs Template",
+				"category": "faugjs"
+			},
+			{
+				"command": "faugjs.template.code",
+				"title": "Show faugjs Template code",
+				"category": "faugjs"
+			},
+			{
+				"command": "faugjs.template.onlyjs",
+				"title": "Show faugjs Template javascript code",
+				"category": "faugjs"
+			},
+			{
+				"command": "faugjs.template.onlyhtml",
+				"title": "Show faugjs Template html code",
+				"category": "faugjs"
+			}
+		],
+		"languages": [
+			{
+				"id": "html",
+				"aliases": [
+					"faugjs template"
+				],
+				"extensions": [
+					".html"
+				],
+				"configuration": "./fjstl.configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"scopeName": "text.html.basic",
+				"path": "./syntaxes/fjstl.tmLanguage.json",
+				"embeddedLanguages": {
+					"text.html": "html",
+					"source.css": "css",
+					"source.js": "javascript"
+				},
+				"tokenTypes": {
+					"meta.tag string.quoted": "other"
+				}
 			}
 		]
 	},
@@ -64,17 +109,22 @@
 		"csso": "^4.2.0",
 		"esprima": "^4.0.1",
 		"fast-glob": "^3.2.7",
+		"html-prettify": "^1.0.7",
 		"http": "0.0.1-security",
+		"http-proxy": "^1.18.1",
+		"http-proxy-response-rewrite": "0.0.1",
 		"jquery": "^3.6.0",
-		"js-beautify": "^1.14.0",
+		"js-beautify": "^1.15.1",
 		"jsdom": "^17.0.0",
 		"node-static": "^0.7.11",
 		"parse-json": "^5.2.0",
+		"read-excel-file": "^5.2.25",
 		"stoppable": "^1.1.0",
 		"vm": "^0.1.0",
 		"xmldom": "^0.6.0",
 		"xpath": "0.0.32",
-		"xpath-ts": "^1.3.13"
+		"xpath-ts": "^1.3.13",
+		"xregexp": "^5.1.1"
 	},
 	"devDependencies": {
 		"@node-minify/core": "^6.2.0",
