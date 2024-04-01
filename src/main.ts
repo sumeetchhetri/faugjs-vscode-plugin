@@ -1491,7 +1491,24 @@ function formatTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, mode: nu
 	
 	//console.log(js_beautify(jscc1));
 	jscc1 = jsb.js_beautify(jscc1).split("\n");
-	var jsmap = jscc1.reduce(function(map, line) {
+	let jscc2 = [];
+	let jl = '';
+	for(const l of jscc1) {
+		if(!/\/\/\d+$/.test(l)) {
+			jl += l + ' ';
+		} else {
+			if(jl!='') {
+				jscc2.push(jl+l.trimLeft());
+			} else {
+				jscc2.push(l);
+			}
+			jl = '';
+		}
+	}
+	if(jl!='') {
+		jscc2.push(jl);
+	}
+	var jsmap = jscc2.reduce(function(map, line) {
 		const ln = line.substring(line.lastIndexOf("//")+2);
 		map[ln*1] = line.substring(0, line.lastIndexOf("//"));
 		if(line.trim()=="") {
@@ -1509,7 +1526,25 @@ function formatTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, mode: nu
 
 	data = XRegExp.replace(data, XRegExp('<%(.*?)%>', 'g'), '__%%__$1__%%__', 'all');
 	data = jsb.html_beautify(data).split("\n");
-	var htmap = data.reduce(function(map, line) {
+	let htmdata = [];
+	jl = '';
+	for(const l of data) {
+		if(!/<!--___\d+___-->$/.test(l)) {
+			jl += l + ' ';
+		} else {
+			if(jl!='') {
+				htmdata.push(jl+l.trimLeft());
+			} else {
+				htmdata.push(l);
+			}
+			jl = '';
+		}
+	}
+	if(jl!='') {
+		htmdata.push(jl);
+	}
+	//console.log(htmdata.join('\n'));
+	var htmap = htmdata.reduce(function(map, line) {
 		const ln = line.substring(line.lastIndexOf("<!--___")+7).replace('___-->', '');
 		map[ln*1] = line.substring(0, line.lastIndexOf("<!--___"));
 		return map;
