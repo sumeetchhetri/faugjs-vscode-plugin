@@ -1483,7 +1483,7 @@ function formatTemplate(fjstemplatedgcoll: vscode.DiagnosticCollection, mode: nu
 		jssc += l.substring(0, l.indexOf('!!')) + '//' + l.substring(l.indexOf('!!')) + '\n';
 	}
 	let jscc1 = XRegExp.replace(jssc, XRegExp('<!--___(\\d+)___-->', 'g'), '//$1', 'all', opts);
-	jscc1 = jscc1.split("\n").sort(function(a,b) {
+	jscc1 = jscc1.split("\n").sort(function(a: String, b: String) {
 		const ad = a.substring(a.lastIndexOf("//")+2);
 		const bd = b.substring(b.lastIndexOf("//")+2);
 		return ad-bd;
